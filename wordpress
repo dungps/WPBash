@@ -1,0 +1,32 @@
+#bin/bash
+
+if [ ! "$1" = "noneclear" ]; then
+	clear
+fi
+
+printf "What do you want to install:\r\n"
+prompt="Please enter your choise: "
+options=("New WordPress" "New Plugin" "New Theme" "Exit")
+PS3="$prompt"
+select opt in "${options[@]}"; do
+	case "$REPLY" in
+	1) installer="newwordpress"; break;;
+	2) installer="newplugin"; break;;
+	3) installer="newtheme"; break;;
+	4) installer="exit"; break;;
+	$(( ${#options[@]}+1 )) ) printf "\r\nGoodbye ...\r\n"; break;;
+	*) echo "Wrong selector, please select again"; continue;;
+	esac
+
+done
+
+if [ "$installer" = "newwordpress" ]; then
+	newwordpress
+elif [ "$installer" = "newplugin" ]; then
+	wp-plugins
+elif [ "$installer" = "newtheme" ]; then
+	wp-themes
+elif [ "$installer" = "exit" ]; then
+	echo "Goodbye ..."
+	exit
+fi

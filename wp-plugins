@@ -1,0 +1,115 @@
+#bin/bash
+
+clear
+
+printf "Enter your plugin name: "
+read name
+
+if [ "$name" = "" ]; then
+	name="Plugin"
+	echo "Wrong plugin name. The script will set $name as name default"
+fi
+
+printf "Enter your plugin slug: "
+read slug
+
+if [ "$slug" = "" ]; then
+	slug="${name// /-}"
+	slug="${slug,,}"
+	echo "Wrong plugin slug. The script will set $slug as slug default"
+fi
+
+printf "Enter your plugin descriptions: "
+read descriptions
+
+printf "Enter your plugin version: "
+read version
+
+if [ "$version" = "" ]; then
+	version="1.0.0"
+fi
+
+printf "Enter your plugin URI: "
+read pluginURI
+
+printf "Enter your plugin author: "
+read author
+
+printf "Enter your plugin author URI: "
+read authorURI
+
+printf "Enter your plugin text domain: "
+read textdomain
+
+if [ "$textdomain" = "" ]; then
+	textdomain="$slug"
+fi
+
+printf "Git folder: "
+read gitfolder
+
+printf "Where do you want to install new plugin? "
+read path
+
+if [ "$path" = "" ]; then
+	path=$PWD
+fi
+
+mkdir "$path/$slug"
+cd "$path/$slug"
+
+if [ ! "$gitfolder" = "" ]; then
+	git init
+	git remote add origin $gitfolder
+	git pull origin master
+fi
+
+if [ ! -f "init.php" ]; then
+cat > init.php <<END
+<?php
+/**
+ * Plugin Name: $name
+ * Plugin URI: $pluginURI
+ * Version: $version
+ * Author: $author
+ * Author URI: $authorURI
+ *
+ * Text Domain: $textdomain
+ */
+END
+fi
+
+touch index.html
+
+mkdir "$path/$slug/inc"
+cd "$path/$slug/inc"
+touch index.html
+
+mkdir "$path/$slug/assets"
+cd "$path/$slug/assets"
+touch index.html
+
+if [ ! "$gitfolder" = "" ]; then
+	printf "Commit it? [yes/no]"
+	read commit
+
+	if [ "$commit" = 'yes' ] || [ "$commit" = "y" ]; then
+		git add --all
+		printf "Commit message: "
+		read commitmessage
+		if [ "$commitmessage" = "" ]; then
+			commitmessage="1st commit"
+		fi
+
+		git commit -am "$commitmessage"
+		git push origin master
+	fi
+fi
+
+clear
+printf "===========================\r\n"
+printf "=     Install done!!!     =\r\n"
+printf "===========================\r\n"
+wordpress noneclear
+
+exit
